@@ -115,8 +115,8 @@
     </div>
     
 <script>
-    // ** SOLO NECESITAMOS LA URL DE NUESTRO SERVIDOR **
-    const CHAT_API_URL = 'http://localhost:3000/api/chat'; 
+    // ** ⚠️ CORRECCIÓN CLAVE: La URL debe ser relativa para funcionar en hosting (Render, Vercel) **
+    const CHAT_API_URL = '/api/chat'; 
 
     let conversationHistory = []; // Memoria a corto plazo
 
@@ -159,7 +159,7 @@
 
             if (!response.ok) {
                 // Si el servidor devuelve un error, lo capturamos
-                throw new Error(`Error HTTP: ${response.status}`);
+                throw new Error(`Error HTTP: ${response.status} o Falló la conexión de red`);
             }
 
             const result = await response.json();
@@ -180,9 +180,9 @@
             if (lastMsg.textContent.includes('...Pensando')) {
                 lastMsg.remove();
             }
-            appendMessage('ia', `⚠️ Error: Falló la comunicación con Gemini. Revisa tu clave API en server.js y que el servidor (3000) esté corriendo. Detalle: ${error.message}`);
+            appendMessage('ia', `⚠️ Error: Falló la comunicación con Gemini. Revisa tu clave API y que el servidor esté corriendo. Detalle: ${error.message}`);
         }
-    }   
+    }    
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
