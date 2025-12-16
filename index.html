@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asistente Melani IA Perucalls</title>
     <style>
         /* 1. Estilos para el fondo dinámico (particles-js) */
@@ -27,14 +28,16 @@
 
         /* 3. Contenedor principal que envuelve el chat (flota sobre el fondo) */
         .main-content {
-            max-width: 600px;
-            margin: 50px auto;
+            /* 2. CORRECCIÓN CLAVE PARA MÓVIL (ANCHO RESPONSIVO) */
+            /* Usa 90% del ancho disponible, pero nunca más de 600px */
+            width: min(600px, 90vw); 
+            margin: 20px auto; /* Reducido para mejor espacio en móvil */
             padding: 20px;
             background-color: rgba(45, 45, 75, 0.9); /* Fondo semitransparente para el chat */
             border-radius: 10px;
             box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
-            z-index: 10; /* Asegura que el chat esté encima */
-            min-height: 500px; /* Altura mínima para que se vea el fondo */
+            z-index: 10; 
+            min-height: 500px;
         }
 
         /* 4. Estilos de la ventana de mensajes */
@@ -115,7 +118,8 @@
     </div>
     
 <script>
-    // ** ⚠️ CORRECCIÓN CLAVE: La URL debe ser relativa para funcionar en hosting (Render, Vercel) **
+    // ** 3. CORRECCIÓN CLAVE DE URL **
+    // Usa URL relativa para que funcione en Render, Vercel o cualquier host.
     const CHAT_API_URL = '/api/chat'; 
 
     let conversationHistory = []; // Memoria a corto plazo
@@ -180,7 +184,7 @@
             if (lastMsg.textContent.includes('...Pensando')) {
                 lastMsg.remove();
             }
-            appendMessage('ia', `⚠️ Error: Falló la comunicación con Gemini. Revisa tu clave API y que el servidor esté corriendo. Detalle: ${error.message}`);
+            appendMessage('ia', `⚠️ Error: Falló la comunicación con la IA. Detalle: ${error.message}`);
         }
     }    
 </script>
