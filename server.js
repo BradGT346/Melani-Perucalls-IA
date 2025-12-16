@@ -6,7 +6,7 @@ const fs = require('fs');
 const { GoogleGenAI } = require('@google/genai'); 
 
 const app = express();
-const PORT process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 const DUMMY_DATA_PATH = './datos_de_prueba.json'; 
 
 // ** ⚠️ IMPORTANTE: PEGA TU CLAVE REAL DE GEMINI AQUÍ ⚠️ **
@@ -97,3 +97,4 @@ app.listen(PORT, '0.0.0.0' , () => {
     console.log('¡Ahora usando Gemini API! No necesitas Ollama.');
 
 });
+
