@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Asistente Melani IA Perucalls</title>
+    <style>
+        /* 1. Estilos para el fondo dinámico (particles-js) */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a2e; /* Fondo Oscuro Profundo */
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: 50% 50%;
+            z-index: -1; /* Mantiene el fondo detrás de todo */
+        }
+
+        /* 2. Estilos base del cuerpo de la página */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: transparent; /* Importante para ver el fondo de partículas */
+            color: #ddd; /* Color de texto claro */
+        }
+
+        /* 3. Contenedor principal que envuelve el chat (flota sobre el fondo) */
+        .main-content {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(45, 45, 75, 0.9); /* Fondo semitransparente para el chat */
+            border-radius: 10px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
+            z-index: 10; /* Asegura que el chat esté encima */
+            min-height: 500px; /* Altura mínima para que se vea el fondo */
+        }
+
+        /* 4. Estilos de la ventana de mensajes */
+        #chat-output {
+            height: 350px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #4a4a6e;
+            border-radius: 8px;
+            background-color: #2c2c4a;
+        }
+
+        /* 5. Estilos de los mensajes */
+        .user-msg {
+            text-align: right;
+            color: #92e6a7; /* Verde suave para el usuario */
+            margin-bottom: 10px;
+        }
+
+        .ia-msg {
+            text-align: left;
+            color: #cccccc;
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: #38385e; /* Fondo ligeramente más claro para Melani */
+            border-radius: 5px;
+        }
+        
+        /* 6. Caja de entrada de texto y botón */
+        .input-area {
+            display: flex;
+            gap: 5px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #4a4a6e;
+            border-radius: 5px;
+            background-color: #1a1a2e;
+            color: #ddd;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #5a5acd; /* Azul tecnológico */
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #7a7acf;
+        }
+        h1 {
+            color: #ffffff;
+            font-size: 1.8em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="particles-js"></div> 
+    
+    <div class="main-content"> 
+        <h1>Asistente Melani (Perucalls) 🤖</h1>
+        <div id="chat-output">
+            <div class="ia-msg">Hola, soy tu Asistente **Melani** de Perucalls. ¡Ya estoy conectado a tus datos de prueba!</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Escribe tu consulta..." onkeypress="if(event.key === 'Enter') enviarMensaje()">
+            <button onclick="enviarMensaje()">Enviar</button>
+        </div>
+    </div>
+    
+<script>
+    // ** SOLO NECESITAMOS LA URL DE NUESTRO SERVIDOR **
+    const CHAT_API_URL = 'http://localhost:3000/api/chat'; 
+
+    let conversationHistory = []; // Memoria a corto plazo
+
+    function appendMessage(sender, text) {
+        const output = document.getElementById('chat-output');
+        const className = sender === 'user' ? 'user-msg' : 'ia-msg';
+        const senderLabel = sender === 'user' ? 'Tú: ' : 'IA: ';
+        
+        output.innerHTML += `<div class="${className}">${senderLabel}${text}</div>`;
+        output.scrollTop = output.scrollHeight;
+        
+        // Añadimos el mensaje al historial
+        conversationHistory.push({ sender, text });
+    }
+
+    async function enviarMensaje() {
+        const input = document.getElementById('user-input');
+        const userPrompt = input.value.trim();
+        
+        if (userPrompt === "") return;
+
+        // Añadimos el mensaje del usuario al historial y limpiamos la entrada
+        appendMessage('user', userPrompt);
+        input.value = '';
+        appendMessage('ia', '...Pensando (llamando a Melani vía Gemini)...');
+        
+        try {
+            // 1. Enviamos el prompt y el historial completo al servidor (server.js)
+            const response = await fetch(CHAT_API_URL, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify({ 
+                    userPrompt: userPrompt, 
+                    // Enviamos todo el historial. Slice(0, -1) excluye el mensaje "...Pensando"
+                    history: conversationHistory.slice(0, -1) 
+                })
+            });
+
+            if (!response.ok) {
+                // Si el servidor devuelve un error, lo capturamos
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const iaResponseText = result.response;
+            
+            // Reemplazar "Pensando..." con la respuesta final
+            const lastMsg = document.querySelector('#chat-output div:last-child');
+            if (lastMsg.textContent.includes('...Pensando')) {
+                lastMsg.remove();
+            }
+            
+            // Añadimos la respuesta final al historial
+            appendMessage('ia', iaResponseText);
+
+        } catch (error) {
+            console.error('Error al comunicarse con el servidor:', error);
+            const lastMsg = document.querySelector('#chat-output div:last-child');
+            if (lastMsg.textContent.includes('...Pensando')) {
+                lastMsg.remove();
+            }
+            appendMessage('ia', `⚠️ Error: Falló la comunicación con Gemini. Revisa tu clave API en server.js y que el servidor (3000) esté corriendo. Detalle: ${error.message}`);
+        }
+    }   
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+<script>
+    // 2. Inicializar la librería con la configuración de Melani
+    particlesJS('particles-js', {
+      "particles": {
+        "number": {
+          "value": 80, // Cantidad de partículas
+          "density": {
+            "enable": true,
+            "value_area": 800
+          }
+        },
+        "color": {
+          "value": "#ffffff" // Color de las partículas (blanco suave)
+        },
+        "shape": {
+          "type": "circle"
+        },
+        "opacity": {
+          "value": 0.5,
+          "random": false
+        },
+        "size": {
+          "value": 3,
+          "random": true
+        },
+        "line_linked": {
+          "enable": true,
+          "distance": 150,
+          "color": "#ffffff", // Color de las líneas
+          "opacity": 0.4,
+          "width": 1
+        },
+        "move": {
+          "enable": true,
+          "speed": 6,
+          "direction": "none",
+          "random": false,
+          "straight": false,
+          "out_mode": "out",
+          "bounce": false
+        }
+      },
+      // 3. Configuración de interactividad (reacción al ratón)
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+          "onhover": {
+            "enable": true,
+            "mode": "repulse" // MODO que hace que las partículas te 'eviten'
+          },
+          "onclick": {
+            "enable": true,
+            "mode": "push" // Crea nuevas partículas al hacer clic
+          },
+          "resize": true
+        },
+        "modes": {
+          "repulse": {
+            "distance": 100, // Distancia de evasión
+            "duration": 0.4
+          }
+        }
+      },
+      "retina_detect": true
+    });
+</script>
+
+</body>
+</html>
