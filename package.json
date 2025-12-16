@@ -1,12 +1,17 @@
 {
   "name": "ia-perucalls",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Asistente de IA para consulta de datos de negocio usando Gemini.",
+  "main": "server.js",  
   "scripts": {
+    "start": "node server.js",  
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "gemini",
+    "ai",
+    "rag"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
