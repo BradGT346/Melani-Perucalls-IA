@@ -22,25 +22,33 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: transparent; /* Importante para ver el fondo de partículas */
-            color: #ddd; /* Color de texto claro */
+            background-color: transparent; 
+            color: #ddd; 
         }
 
-        /* 3. Contenedor principal que envuelve el chat (flota sobre el fondo) */
+        /* 3. Contenedor principal: ESTILO BASE DE ESCRITORIO */
         .main-content {
-            /* 2. CORRECCIÓN CLAVE PARA MÓVIL (ANCHO RESPONSIVO) */
-            /* Usa 90% del ancho disponible, pero nunca más de 600px */
-            width: min(600px, 90vw); 
-            margin: 20px auto; /* Reducido para mejor espacio en móvil */
+            max-width: 600px; /* Ancho Máximo en escritorio */
+            width: 90vw; /* Usa 90% del ancho de la vista por defecto */
+            margin: 50px auto;
             padding: 20px;
-            background-color: rgba(45, 45, 75, 0.9); /* Fondo semitransparente para el chat */
+            background-color: rgba(45, 45, 75, 0.9);
             border-radius: 10px;
             box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
-            z-index: 10; 
-            min-height: 500px;
+            z-index: 10;
+            min-height: 500px; 
         }
 
-        /* 4. Estilos de la ventana de mensajes */
+        /* 4. MEDIA QUERY: AJUSTE ESPECÍFICO PARA PANTALLAS PEQUEÑAS (Mobile First) */
+        @media (max-width: 650px) {
+            .main-content {
+                width: 95%; /* Forzamos un ancho del 95% para maximizar el espacio en el celular */
+                margin: 10px auto; /* Reducimos el margen superior/inferior para ocupar más pantalla */
+                padding: 15px;
+            }
+        }
+
+        /* 5. Estilos de la ventana de mensajes */
         #chat-output {
             height: 350px;
             overflow-y: auto;
@@ -51,10 +59,10 @@
             background-color: #2c2c4a;
         }
 
-        /* 5. Estilos de los mensajes */
+        /* 6. Estilos de los mensajes */
         .user-msg {
             text-align: right;
-            color: #92e6a7; /* Verde suave para el usuario */
+            color: #92e6a7; 
             margin-bottom: 10px;
         }
 
@@ -63,11 +71,11 @@
             color: #cccccc;
             margin-bottom: 10px;
             padding: 8px;
-            background-color: #38385e; /* Fondo ligeramente más claro para Melani */
+            background-color: #38385e; 
             border-radius: 5px;
         }
         
-        /* 6. Caja de entrada de texto y botón */
+        /* 7. Caja de entrada de texto y botón */
         .input-area {
             display: flex;
             gap: 5px;
@@ -86,7 +94,7 @@
             padding: 10px 15px;
             border: none;
             border-radius: 5px;
-            background-color: #5a5acd; /* Azul tecnológico */
+            background-color: #5a5acd; 
             color: white;
             cursor: pointer;
             transition: background-color 0.3s;
@@ -118,8 +126,7 @@
     </div>
     
 <script>
-    // ** 3. CORRECCIÓN CLAVE DE URL **
-    // Usa URL relativa para que funcione en Render, Vercel o cualquier host.
+    // ** CORRECCIÓN CLAVE DE URL **
     const CHAT_API_URL = '/api/chat'; 
 
     let conversationHistory = []; // Memoria a corto plazo
@@ -196,14 +203,14 @@
     particlesJS('particles-js', {
       "particles": {
         "number": {
-          "value": 80, // Cantidad de partículas
+          "value": 80, 
           "density": {
             "enable": true,
             "value_area": 800
           }
         },
         "color": {
-          "value": "#ffffff" // Color de las partículas (blanco suave)
+          "value": "#ffffff" 
         },
         "shape": {
           "type": "circle"
@@ -219,7 +226,7 @@
         "line_linked": {
           "enable": true,
           "distance": 150,
-          "color": "#ffffff", // Color de las líneas
+          "color": "#ffffff", 
           "opacity": 0.4,
           "width": 1
         },
@@ -239,17 +246,17 @@
         "events": {
           "onhover": {
             "enable": true,
-            "mode": "repulse" // MODO que hace que las partículas te 'eviten'
+            "mode": "repulse" 
           },
           "onclick": {
             "enable": true,
-            "mode": "push" // Crea nuevas partículas al hacer clic
+            "mode": "push" 
           },
           "resize": true
         },
         "modes": {
           "repulse": {
-            "distance": 100, // Distancia de evasión
+            "distance": 100, 
             "duration": 0.4
           }
         }
