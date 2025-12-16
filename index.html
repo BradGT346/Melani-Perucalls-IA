@@ -3,23 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistente Melani IA Perucalls</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <title>Melanie IA 🤖</title>
     <style>
         /* 1. Estilos para el fondo dinámico (particles-js) */
         #particles-js {
             position: fixed;
             width: 100%;
             height: 100%;
-            background-color: #1a1a2e; /* Fondo Oscuro Profundo */
+            background-color: #1a1a2e;
             background-repeat: no-repeat;
             background-size: cover;
             background-position: 50% 50%;
-            z-index: -1; /* Mantiene el fondo detrás de todo */
+            z-index: -1;
         }
 
         /* 2. Estilos base del cuerpo de la página */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Usamos Roboto como fuente general */
+            font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
             background-color: transparent; 
@@ -28,42 +30,63 @@
 
         /* 3. Contenedor principal: ESTILO BASE DE ESCRITORIO */
         .main-content {
-            max-width: 600px; /* Ancho Máximo en escritorio */
-            width: 90vw; /* Usa 90% del ancho de la vista por defecto */
+            max-width: 600px; 
+            width: 90vw; 
             margin: 50px auto;
-            padding: 20px;
-            background-color: rgba(45, 45, 75, 0.9);
-            border-radius: 10px;
-            box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
+            padding: 25px; /* Más padding para que respire */
+            background-color: rgba(30, 30, 50, 0.95); /* Fondo ligeramente más oscuro */
+            border-radius: 15px; /* Bordes más suaves */
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.9);
             z-index: 10;
             min-height: 500px; 
+            display: flex; /* Añadido para mejor control */
+            flex-direction: column;
         }
 
-        /* 4. MEDIA QUERY: AJUSTE ESPECÍFICO PARA PANTALLAS PEQUEÑAS (Mobile First) */
+        /* 4. Título con fuente profesional */
+        h1 {
+            /* Usamos Poppins para el título */
+            font-family: 'Poppins', sans-serif;
+            color: #ffffff;
+            font-size: 2.2em; /* Título más grande */
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+            color: #7a7acf; /* Color azulado profesional */
+        }
+        
+        /* 5. MEDIA QUERY: AJUSTE ESPECÍFICO PARA PANTALLAS PEQUEÑAS */
         @media (max-width: 650px) {
             .main-content {
-                width: 95%; /* Forzamos un ancho del 95% para maximizar el espacio en el celular */
-                margin: 10px auto; /* Reducimos el margen superior/inferior para ocupar más pantalla */
+                width: 95%; 
+                margin: 10px auto; 
                 padding: 15px;
+            }
+            h1 {
+                font-size: 1.8em;
             }
         }
 
-        /* 5. Estilos de la ventana de mensajes */
+        /* 6. Estilos de la ventana de mensajes */
         #chat-output {
-            height: 350px;
+            flex-grow: 1; /* Permite que la ventana ocupe el espacio restante */
             overflow-y: auto;
             margin-bottom: 15px;
             padding: 10px;
             border: 1px solid #4a4a6e;
-            border-radius: 8px;
-            background-color: #2c2c4a;
+            border-radius: 10px;
+            background-color: #24243e; /* Fondo de chat más oscuro */
+            /* Transición suave para el scroll (no siempre funciona en todos los navegadores) */
+            scroll-behavior: smooth; 
         }
 
-        /* 6. Estilos de los mensajes */
+        /* 7. Estilos de los mensajes */
         .user-msg {
             text-align: right;
             color: #92e6a7; 
             margin-bottom: 10px;
+            padding: 5px 0;
         }
 
         .ia-msg {
@@ -72,41 +95,55 @@
             margin-bottom: 10px;
             padding: 8px;
             background-color: #38385e; 
-            border-radius: 5px;
+            border-radius: 8px;
         }
         
-        /* 7. Caja de entrada de texto y botón */
+        /* 8. Estilo para el efecto de escritura (animación) */
+        .typing-animation {
+            /* Ocultamos el texto hasta que la animación lo revele */
+            white-space: nowrap; 
+            /* Esto creará el efecto de cursor */
+            border-right: .15em solid #92e6a7; 
+            overflow: hidden;
+            animation: blink-caret .75s step-end infinite;
+            display: inline-block; /* Importante para el cursor */
+        }
+        
+        /* Animación para el cursor parpadeante */
+        @keyframes blink-caret {
+          from, to { border-color: transparent }
+          50% { border-color: #92e6a7; }
+        }
+
+        /* 9. Caja de entrada de texto y botón */
         .input-area {
             display: flex;
-            gap: 5px;
+            gap: 10px;
         }
 
         input[type="text"] {
             flex-grow: 1;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #4a4a6e;
-            border-radius: 5px;
+            border-radius: 8px;
             background-color: #1a1a2e;
             color: #ddd;
+            font-size: 1em;
         }
 
         button {
-            padding: 10px 15px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             background-color: #5a5acd; 
             color: white;
             cursor: pointer;
             transition: background-color 0.3s;
+            font-size: 1em;
         }
 
         button:hover {
             background-color: #7a7acf;
-        }
-        h1 {
-            color: #ffffff;
-            font-size: 1.8em;
-            text-align: center;
         }
     </style>
 </head>
@@ -115,9 +152,9 @@
     <div id="particles-js"></div> 
     
     <div class="main-content"> 
-        <h1>Asistente Melani (Perucalls) 🤖</h1>
+        <h1>Melanie IA 🤖</h1>
         <div id="chat-output">
-            <div class="ia-msg">Hola, soy tu Asistente **Melani** de Perucalls. ¡Ya estoy conectado a tus datos de prueba!</div>
+            <div class="ia-msg">¡Hola! Soy Melanie, una asistente de IA lista para ayudarte. ¿En qué puedo serte útil hoy?</div>
         </div>
         <div class="input-area">
             <input type="text" id="user-input" placeholder="Escribe tu consulta..." onkeypress="if(event.key === 'Enter') enviarMensaje()">
@@ -126,21 +163,29 @@
     </div>
     
 <script>
-    // ** CORRECCIÓN CLAVE DE URL **
     const CHAT_API_URL = '/api/chat'; 
+    let conversationHistory = []; 
 
-    let conversationHistory = []; // Memoria a corto plazo
-
-    function appendMessage(sender, text) {
+    function appendMessage(sender, text, isFinal=true) {
         const output = document.getElementById('chat-output');
         const className = sender === 'user' ? 'user-msg' : 'ia-msg';
         const senderLabel = sender === 'user' ? 'Tú: ' : 'IA: ';
         
-        output.innerHTML += `<div class="${className}">${senderLabel}${text}</div>`;
-        output.scrollTop = output.scrollHeight;
+        const newDiv = document.createElement('div');
+        newDiv.className = className;
+        newDiv.innerHTML = `${senderLabel}${text}`;
         
-        // Añadimos el mensaje al historial
-        conversationHistory.push({ sender, text });
+        output.appendChild(newDiv);
+        output.scrollTop = output.scrollHeight;
+
+        if (isFinal) {
+             // Solo añadimos la respuesta final al historial
+             if (sender === 'ia') {
+                 conversationHistory.push({ role: 'model', text: text });
+             } else {
+                 conversationHistory.push({ role: 'user', text: text });
+             }
+        }
     }
 
     async function enviarMensaje() {
@@ -149,13 +194,19 @@
         
         if (userPrompt === "") return;
 
-        // Añadimos el mensaje del usuario al historial y limpiamos la entrada
-        appendMessage('user', userPrompt);
+        // Añadimos el mensaje del usuario al historial
+        // Nota: El historial se almacena en el formato que espera el servidor {role: 'user', text: '...'}
+        appendMessage('user', userPrompt, false); // Añadimos visualmente, pero la data ya se almacena en el fetch
+
+        // Almacenamos el mensaje del usuario antes de limpiar el input
+        conversationHistory.push({ sender: 'user', text: userPrompt });
         input.value = '';
-        appendMessage('ia', '...Pensando (llamando a Melani vía Gemini)...');
+
+        // Mostramos el mensaje temporal
+        appendMessage('ia', '...Escribiendo respuesta (Melanie está consultando)...', false);
+        const thinkingMessage = document.querySelector('#chat-output div:last-child');
         
         try {
-            // 1. Enviamos el prompt y el historial completo al servidor (server.js)
             const response = await fetch(CHAT_API_URL, {
                 method: 'POST',
                 headers: { 
@@ -163,35 +214,57 @@
                 },
                 body: JSON.stringify({ 
                     userPrompt: userPrompt, 
-                    // Enviamos todo el historial. Slice(0, -1) excluye el mensaje "...Pensando"
-                    history: conversationHistory.slice(0, -1) 
+                    // Enviamos todo el historial, incluyendo el último prompt del usuario
+                    history: conversationHistory 
                 })
             });
 
             if (!response.ok) {
-                // Si el servidor devuelve un error, lo capturamos
                 throw new Error(`Error HTTP: ${response.status} o Falló la conexión de red`);
             }
 
             const result = await response.json();
             const iaResponseText = result.response;
             
-            // Reemplazar "Pensando..." con la respuesta final
-            const lastMsg = document.querySelector('#chat-output div:last-child');
-            if (lastMsg.textContent.includes('...Pensando')) {
-                lastMsg.remove();
-            }
+            // ----------------------------------------------------
+            // IMPLEMENTACIÓN DE EFECTO DE ESCRITURA (Tipo ChatGPT)
+            // ----------------------------------------------------
             
-            // Añadimos la respuesta final al historial
-            appendMessage('ia', iaResponseText);
+            // 1. Reemplazamos el mensaje temporal
+            const finalDiv = document.createElement('div');
+            finalDiv.className = 'ia-msg';
+            finalDiv.innerHTML = 'IA: '; // El prefijo
+            const span = document.createElement('span');
+            // La clase .typing-animation solo aplica el cursor parpadeante (el texto aparece por JS)
+            span.classList.add('typing-animation'); 
+            finalDiv.appendChild(span);
+            thinkingMessage.replaceWith(finalDiv);
+
+            // 2. Ejecutamos la animación de escritura
+            let i = 0;
+            const speed = 20; // velocidad en ms (ajusta esto si quieres que escriba más rápido o lento)
+            const output = document.getElementById('chat-output');
+
+            function typeWriter() {
+                if (i < iaResponseText.length) {
+                    span.textContent += iaResponseText.charAt(i);
+                    i++;
+                    output.scrollTop = output.scrollHeight; // Mantiene el scroll abajo
+                    setTimeout(typeWriter, speed);
+                } else {
+                    // 3. Cuando termina, quitamos el efecto y añadimos la respuesta al historial
+                    span.classList.remove('typing-animation');
+                    // Almacenamos la respuesta de la IA en el historial después de que se termina de escribir
+                    conversationHistory.push({ sender: 'model', text: iaResponseText });
+                }
+            }
+            typeWriter();
+            
 
         } catch (error) {
             console.error('Error al comunicarse con el servidor:', error);
-            const lastMsg = document.querySelector('#chat-output div:last-child');
-            if (lastMsg.textContent.includes('...Pensando')) {
-                lastMsg.remove();
-            }
-            appendMessage('ia', `⚠️ Error: Falló la comunicación con la IA. Detalle: ${error.message}`);
+            // Si falla, mostramos el error
+            thinkingMessage.textContent = `IA: ⚠️ Error: Falló la comunicación con la IA. Detalle: ${error.message}`;
         }
     }    
 </script>
@@ -199,66 +272,26 @@
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 
 <script>
-    // 2. Inicializar la librería con la configuración de Melani
+    // Inicializar la librería particles.js (sin cambios)
     particlesJS('particles-js', {
       "particles": {
-        "number": {
-          "value": 80, 
-          "density": {
-            "enable": true,
-            "value_area": 800
-          }
-        },
-        "color": {
-          "value": "#ffffff" 
-        },
-        "shape": {
-          "type": "circle"
-        },
-        "opacity": {
-          "value": 0.5,
-          "random": false
-        },
-        "size": {
-          "value": 3,
-          "random": true
-        },
-        "line_linked": {
-          "enable": true,
-          "distance": 150,
-          "color": "#ffffff", 
-          "opacity": 0.4,
-          "width": 1
-        },
-        "move": {
-          "enable": true,
-          "speed": 6,
-          "direction": "none",
-          "random": false,
-          "straight": false,
-          "out_mode": "out",
-          "bounce": false
-        }
+        "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+        "color": { "value": "#ffffff" },
+        "shape": { "type": "circle" },
+        "opacity": { "value": 0.5, "random": false },
+        "size": { "value": 3, "random": true },
+        "line_linked": { "enable": true, "distance": 150, "color": "#ffffff", "opacity": 0.4, "width": 1 },
+        "move": { "enable": true, "speed": 6, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false }
       },
-      // 3. Configuración de interactividad (reacción al ratón)
       "interactivity": {
         "detect_on": "canvas",
         "events": {
-          "onhover": {
-            "enable": true,
-            "mode": "repulse" 
-          },
-          "onclick": {
-            "enable": true,
-            "mode": "push" 
-          },
+          "onhover": { "enable": true, "mode": "repulse" },
+          "onclick": { "enable": true, "mode": "push" },
           "resize": true
         },
         "modes": {
-          "repulse": {
-            "distance": 100, 
-            "duration": 0.4
-          }
+          "repulse": { "distance": 100, "duration": 0.4 }
         }
       },
       "retina_detect": true
