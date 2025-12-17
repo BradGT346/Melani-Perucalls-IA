@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melanie IA 🤖</title>
+    <style>
+        /* Estilos Generales */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #1c1e21;
+        }
+
+        /* Contenedor Principal del Chat */
+        .chat-container {
+            width: 100%;
+            max-width: 700px;
+            height: 90vh;
+            max-height: 800px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Cabecera del Chat */
+        .header {
+            background-color: #1976D2; /* Azul profesional */
+            color: white;
+            padding: 16px;
+            font-size: 1.5em;
+            font-weight: bold;
+            text-align: center;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Área de Mensajes */
+        .chat-output {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: #f7f8fa;
+        }
+
+        /* Contenedor del Mensaje */
+        .ia-msg, .user-msg {
+            display: flex;
+            max-width: 85%;
+            word-wrap: break-word;
+        }
+
+        /* Burbuja del Mensaje */
+        .msg-bubble {
+            padding: 10px 15px;
+            border-radius: 20px;
+            line-height: 1.4;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+            white-space: pre-wrap; /* Mantiene saltos de línea y espacios */
+        }
+
+        /* Estilo para Mensajes del Usuario */
+        .user-msg {
+            align-self: flex-end;
+        }
+        .user-msg .msg-bubble {
+            background-color: #0084ff; /* Azul vibrante */
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        /* Estilo para Mensajes de la IA */
+        .ia-msg {
+            align-self: flex-start;
+        }
+        .ia-msg .msg-bubble {
+            background-color: #e5e5ea; /* Gris claro */
+            color: #1c1e21;
+            border-bottom-left-radius: 4px;
+        }
+
+        /* Área de Entrada (Input y Botón) */
+        .chat-input-area {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #e5e5ea;
+            background-color: #ffffff;
+        }
+
+        .chat-input-area input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #cccccc;
+            border-radius: 20px;
+            font-size: 1em;
+            margin-right: 10px;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input-area input:focus {
+            border-color: #1976D2;
+            outline: none;
+        }
+
+        .chat-input-area button {
+            padding: 10px 20px;
+            background-color: #1976D2;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.2s, opacity 0.2s;
+        }
+
+        .chat-input-area button:hover:not(:disabled) {
+            background-color: #1565C0;
+        }
+
+        .chat-input-area button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Estilos para el punto de escritura (animación) */
+        .typing-dot {
+            font-size: 1.2em;
+            margin-left: 5px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Media Queries para responsividad en móviles */
+        @media (max-width: 768px) {
+            .chat-container {
+                height: 100vh;
+                width: 100vw;
+                max-width: none;
+                max-height: none;
+                border-radius: 0;
+            }
+            body {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="header">
+            Melanie IA 🤖
+        </div>
+
+        <div class="chat-output" id="chat-output">
+            <div class="ia-msg">
+                <div class="msg-bubble">
+                    <span class="sender-label">Melanie: </span>
+                    ¡Hola! Soy Melanie, tu asistente de IA. Estoy aquí para ayudarte con cualquier pregunta que tengas. ¿Cómo puedo asistirte hoy?
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-area">
+            <input type="text" id="user-input" placeholder="Escribe tu mensaje aquí..." onkeydown="if(event.key === 'Enter') enviarMensaje()">
+            <button id="enviar-btn" onclick="enviarMensaje()">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        const CHAT_API_URL = '/api/chat';
+        let conversationHistory = []; // Almacena el historial para enviarlo a la API
+        let isTyping = false; // Bandera para evitar envíos múltiples mientras la IA responde
+        let typeWriterIndex = 0;
+        let responseText = '';
+        let typingInterval;
+        let iaMessageElement = null; // Referencia al div de la IA mientras escribe
+        const enviarBtn = document.getElementById('enviar-btn');
+        const userInput = document.getElementById('user-input');
+        const chatOutput = document.getElementById('chat-output');
+
+        // --- Funciones de Utilidad ---
+
+        function scrollHeight() {
+            chatOutput.scrollTop = chatOutput.scrollHeight;
+        }
+
+        // Crea y añade un mensaje al DOM
+        function appendMessage(sender, text, isFinal = true) {
+            let className = sender === 'user' ? 'user-msg' : 'ia-msg';
+            let senderLabel = sender === 'user' ? 'Tú: ' : 'Melanie: ';
+
+            const newDiv = document.createElement('div');
+            newDiv.className = className;
+
+            const bubble = document.createElement('div');
+            bubble.className = 'msg-bubble';
+            bubble.innerHTML = `<span class="sender-label">${senderLabel}</span>${text}`;
+            newDiv.appendChild(bubble);
+
+            chatOutput.appendChild(newDiv);
+            scrollHeight();
+
+            // Solo añadimos la respuesta completa al historial una vez que termina de escribirse
+            if (isFinal) {
+                if (sender === 'ia') {
+                    // Guardamos solo el texto de la IA en el historial (sin la etiqueta Melanie:)
+                    conversationHistory.push({ role: 'model', text: text });
+                } else {
+                    // Guardamos el mensaje del usuario
+                    conversationHistory.push({ role: 'user', text: text });
+                }
+            }
+            return newDiv;
+        }
+
+        // --- Animación de Escritura (Typewriter) ---
+
+        function typeWriter() {
+            if (typeWriterIndex < responseText.length) {
+                // Añade el siguiente carácter al mensaje visible
+                const currentText = responseText.substring(0, typeWriterIndex + 1);
+                const typingDot = `<span class="typing-dot">|</span>`; // Cursor
+                iaMessageElement.querySelector('.msg-bubble').innerHTML = `<span class="sender-label">Melanie: </span>${currentText}${typingDot}`;
+                
+                typeWriterIndex++;
+                scrollHeight();
+            } else {
+                // Terminó de escribir
+                clearInterval(typingInterval);
+                isTyping = false;
+                enviarBtn.disabled = false;
+                userInput.disabled = false;
+
+                // Muestra el texto final (sin el cursor)
+                const finalText = responseText;
+                iaMessageElement.querySelector('.msg-bubble').innerHTML = `<span class="sender-label">Melanie: </span>${finalText}`;
+                
+                // Añadimos la respuesta al historial (isFinal = true)
+                appendMessage('ia', finalText, true);
+                
+                scrollHeight();
+            }
+        }
+
+        // --- Función Principal de Envío ---
+
+        async function enviarMensaje() {
+            const userPrompt = userInput.value.trim();
+            if (!userPrompt || isTyping) return; // No envía si está vacío o si la IA está escribiendo
+
+            isTyping = true;
+            enviarBtn.disabled = true;
+            userInput.disabled = true;
+            userInput.value = ''; // Limpia el input
+
+            // 1. Añadimos visualmente el mensaje del usuario
+            appendMessage('user', userPrompt, false); 
+            
+            // 2. Preparamos el mensaje temporal de la IA para la animación
+            iaMessageElement = appendMessage('ia', '...', false); // El texto inicial '...' se reemplazará
+            iaMessageElement.querySelector('.msg-bubble').innerHTML = `<span class="sender-label">Melanie: </span><span class="typing-dot">|</span>`;
+
+            try {
+                const response = await fetch(CHAT_API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userPrompt: userPrompt,
+                        history: conversationHistory 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    responseText = data.response; // La respuesta completa de la IA
+                    typeWriterIndex = 0;
+                    typingInterval = setInterval(typeWriter, 40); // Inicia la animación de escritura
+                } else {
+                    clearInterval(typingInterval);
+                    isTyping = false;
+                    enviarBtn.disabled = false;
+                    userInput.disabled = false;
+                    iaMessageElement.querySelector('.msg-bubble').innerHTML = `<span class="sender-label">Melanie: </span>Error: ${data.error || 'Algo salió mal. Inténtalo de nuevo.'}`;
+                }
+
+            } catch (error) {
+                console.error('Error de red:', error);
+                clearInterval(typingInterval);
+                isTyping = false;
+                enviarBtn.disabled = false;
+                userInput.disabled = false;
+                iaMessageElement.querySelector('.msg-bubble').innerHTML = `<span class="sender-label">Melanie: </span>Error de conexión. Verifica el servidor.`;
+            }
+        }
+
+        // Event listener para enviar con la tecla Enter
+        userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Evita el salto de línea por defecto
+                enviarMensaje();
+            }
+        });
+    </script>
+
+</body>
+</html>
