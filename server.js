@@ -1,47 +1,35 @@
 import express from 'express';
-import { GoogleGenerativeAI } from '@google/generative-ai'; // Nombre de librería corregido
-import cors from 'cors'; // Importante para la conexión
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import cors from 'cors';
 
-// Configuración del servidor
 const app = express();
 app.use(express.json());
-app.use(cors()); // Permite que el chat se conecte sin errores
+app.use(cors()); // Esto quita el error de conexión
 app.use(express.static('public')); 
 
-// Configuración de la IA (Usa tu clave de API de Render)
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 const PORT = process.env.PORT || 3000;
 
 app.post('/api/chat', async (req, res) => {
-    const { userPrompt, history } = req.body;
-
-    // Personalidad de Melanie
-    const systemPrompt = "Eres Melanie, una asistente de IA amigable y profesional. Ayuda al usuario en todo lo que necesite.";
+    const { userPrompt } = req.body;
+    const systemPrompt = "Eres Melanie, una IA amigable y útil.";
 
     try {
-        // Usamos el modelo correcto: gemini-1.5-flash
         const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
+            model: "gemini-1.5-flash", 
             systemInstruction: systemPrompt 
         });
 
-        // Formateamos el historial si existe, si no, empezamos vacío
-        const chat = model.startChat({
-            history: history || [],
-        });
-
-        const result = await chat.sendMessage(userPrompt);
+        const result = await model.generateContent(userPrompt);
         const response = await result.response;
-        
         res.json({ response: response.text() });
-
     } catch (error) {
-        console.error("Error en Gemini:", error);
-        res.status(500).json({ error: "No pude obtener respuesta de la IA." });
+        console.error("Error:", error);
+        res.status(500).json({ error: "No pude conectar con la IA." });
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor listo en puerto ${PORT}`);
+    console.log(`Melanie lista en puerto ${PORT}`);
 });
