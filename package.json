@@ -1,8 +1,6 @@
 {
   "name": "melanie-ia",
   "version": "1.0.0",
-  "description": "Asistente de Inteligencia Artificial",
-  "main": "server.js",
   "type": "module",
   "scripts": {
     "start": "node server.js"
