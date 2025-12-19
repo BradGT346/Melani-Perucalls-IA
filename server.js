@@ -7,14 +7,14 @@ app.use(express.json());
 app.use(cors()); 
 app.use(express.static('public')); 
 
-// Configura tu llave de API
+// Configuración de la IA con tu llave de Render
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const PORT = process.env.PORT || 10000; 
 
 app.post('/api/chat', async (req, res) => {
     const { userPrompt } = req.body;
     try {
-        // Cambiamos el nombre del modelo por el técnico estable
+        // Nombre de modelo simplificado para evitar el error 404
         const model = genAI.getGenerativeModel({ 
             model: "gemini-1.5-flash" 
         });
@@ -24,7 +24,8 @@ app.post('/api/chat', async (req, res) => {
         res.json({ response: response.text() });
         
     } catch (error) {
-        console.error("Error detallado:", error);
+        // Imprime el error real en los logs de Render para depurar
+        console.error("DETALLE TÉCNICO DEL ERROR:", error);
         res.status(500).json({ error: "No pude conectar con la IA." });
     }
 });
