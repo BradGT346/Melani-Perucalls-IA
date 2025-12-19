@@ -38,7 +38,6 @@
         const btn = document.getElementById('send-btn');
         const typing = document.getElementById('typing');
 
-        // Función para añadir mensajes visualmente
         function appendMsg(text, type) {
             const div = document.createElement('div');
             div.className = `msg ${type}-msg`;
@@ -57,14 +56,12 @@
             typing.style.display = 'block';
 
             try {
-                // IMPORTANTE: Esta ruta /api/chat debe coincidir con tu server.js
+                // Conectamos con el servidor usando la ruta correcta
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userPrompt: text }) 
                 });
-
-                if (!response.ok) throw new Error('Respuesta del servidor no exitosa');
 
                 const data = await response.json();
                 typing.style.display = 'none';
@@ -72,12 +69,11 @@
                 if (data.response) {
                     appendMsg(data.response, 'ia');
                 } else {
-                    appendMsg("Recibí una respuesta pero no tiene texto.", 'ia');
+                    throw new Error();
                 }
             } catch (err) {
                 typing.style.display = 'none';
-                appendMsg("Error: No pude conectar con la IA. Verifica que el servidor esté encendido.", 'ia');
-                console.error(err);
+                appendMsg("Error: No pude conectar con la IA. Asegúrate de haber actualizado el server.js y package.json.", 'ia');
             } finally {
                 btn.disabled = false;
                 input.focus();
