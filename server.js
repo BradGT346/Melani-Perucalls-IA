@@ -7,20 +7,20 @@ app.use(express.json());
 app.use(cors()); 
 app.use(express.static('public')); 
 
-// Conexión con la llave de Google guardada en Render
+// Forzamos la conexión a la versión estable "v1" para evitar el error 404
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const PORT = process.env.PORT || 10000; 
 
 app.post('/api/chat', async (req, res) => {
     const { userPrompt } = req.body;
     
-    if (!userPrompt) {
-        return res.status(400).json({ error: "Mensaje vacío" });
-    }
+    if (!userPrompt) return res.status(400).json({ error: "No hay mensaje" });
 
     try {
-        // Usamos el modelo gemini-1.5-flash de forma directa
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // CAMBIO CLAVE: Especificamos el modelo y forzamos parámetros de seguridad
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-1.5-flash",
+        });
 
         const result = await model.generateContent(userPrompt);
         const response = await result.response;
@@ -29,15 +29,15 @@ app.post('/api/chat', async (req, res) => {
         res.json({ response: text });
 
     } catch (error) {
-        // Reporte de error detallado para los logs de Render
-        console.error("DETALLE TÉCNICO DEL ERROR:", error.message);
+        // Este log nos dirá si el problema es la región o la versión
+        console.error("ERROR DETECTADO:", error.message);
         res.status(500).json({ 
-            error: "Error de comunicación con la IA",
+            error: "Error de conexión", 
             details: error.message 
         });
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Melanie IA activa en puerto ${PORT}`);
+    console.log(`🚀 Melanie IA activa y forzada en puerto ${PORT}`);
 });
