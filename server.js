@@ -7,27 +7,27 @@ app.use(express.json());
 app.use(cors()); 
 app.use(express.static('public')); 
 
-// Inicializamos con tu llave de API
+// Usamos la API KEY de tus variables de entorno en Render
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const PORT = process.env.PORT || 10000; 
 
 app.post('/api/chat', async (req, res) => {
     const { userPrompt } = req.body;
     try {
-        // Usamos el modelo 'gemini-pro', que es el más estable para texto
+        // Forzamos el uso de gemini-1.5-flash sin prefijos de versión
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const result = await model.generateContent(userPrompt);
         const response = await result.response;
-        const text = response.text();
+        res.json({ response: response.text() });
         
-        res.json({ response: text });
     } catch (error) {
-        console.error("DETALLE DEL ERROR:", error);
-        res.status(500).json({ error: "No pude conectar con la IA." });
+        // Esto imprimirá el error real en los logs para nosotros
+        console.error("ERROR GOOGLE:", error.message);
+        res.status(500).json({ error: "No pude conectar con Melanie" });
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`Melanie IA activa en puerto ${PORT}`);
+    console.log(`Servidor activo en puerto ${PORT}`);
 });
