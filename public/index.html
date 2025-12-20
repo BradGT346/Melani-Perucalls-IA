@@ -3,67 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Melanie IA | Panel de Control</title>
+    <title>Melanie IA 🤖</title>
     <style>
-        :root { --primary: #1976D2; --bg: #f0f2f5; --user-msg: #0084ff; --ia-msg: #e9ecef; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .chat-container { width: 100%; max-width: 500px; height: 85vh; background: white; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
-        .chat-header { background: var(--primary); color: white; padding: 20px; text-align: center; font-size: 1.2em; font-weight: bold; }
-        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; scroll-behavior: smooth; }
-        .message { padding: 12px 16px; border-radius: 15px; max-width: 85%; line-height: 1.4; position: relative; font-size: 0.95em; }
-        .user-message { align-self: flex-end; background: var(--user-msg); color: white; border-bottom-right-radius: 2px; }
-        .ia-message { align-self: flex-start; background: var(--ia-msg); color: #333; border-bottom-left-radius: 2px; }
-        .typing-indicator { font-size: 0.8em; color: #666; display: none; padding: 5px 20px; }
-        .chat-input-area { padding: 20px; border-top: 1px solid #eee; display: flex; gap: 10px; background: white; }
-        input { flex: 1; border: 1px solid #ddd; padding: 12px 15px; border-radius: 25px; outline: none; transition: border 0.3s; }
-        input:focus { border-color: var(--primary); }
-        button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; transition: opacity 0.3s; }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .error-banner { background: #ffebee; color: #c62828; font-size: 0.8em; padding: 5px; text-align: center; display: none; }
+        :root { --blue: #1976D2; --bg: #f0f2f5; --white: #ffffff; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .container { width: 100%; max-width: 500px; height: 90vh; background: var(--white); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
+        .header { background: var(--blue); color: white; padding: 15px; text-align: center; font-weight: bold; font-size: 1.1em; }
+        .chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #f8f9fa; }
+        .msg { padding: 12px 16px; border-radius: 15px; max-width: 80%; font-size: 14px; line-height: 1.5; }
+        .user-msg { align-self: flex-end; background: #0084ff; color: white; border-bottom-right-radius: 2px; }
+        .ia-msg { align-self: flex-start; background: #e9ecef; color: #333; border-bottom-left-radius: 2px; }
+        .status-bar { background: #ffebee; color: #c62828; font-size: 12px; padding: 8px; text-align: center; display: none; }
+        .loader { font-size: 12px; color: #666; padding: 10px; display: none; }
+        .input-area { padding: 15px; border-top: 1px solid #eee; display: flex; gap: 10px; }
+        input { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 25px; outline: none; }
+        button { background: var(--blue); color: white; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+        button:disabled { opacity: 0.5; }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">Melanie IA 🤖</div>
-        <div id="error-banner" class="error-banner"></div>
-        <div class="chat-messages" id="chat-messages">
-            <div class="message ia-message">¡Hola! Soy Melanie. He actualizado mis sistemas. ¿En qué puedo ayudarte hoy?</div>
+    <div class="container">
+        <div class="header">Melanie IA 🤖</div>
+        <div id="status" class="status-bar">⚠️ Error de conexión. Revisa los logs en Render.</div>
+        <div id="chat-box" class="chat-box">
+            <div class="msg ia-msg">¡Hola! Soy Melanie. He actualizado mis sistemas. ¿En qué puedo ayudarte?</div>
         </div>
-        <div id="typing" class="typing-indicator">Melanie está procesando tu solicitud...</div>
-        <div class="chat-input-area">
-            <input type="text" id="user-input" placeholder="Escribe un mensaje aquí..." autocomplete="off">
-            <button id="send-btn">Enviar</button>
+        <div id="loader" class="loader">Melanie está pensando...</div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Escribe un mensaje..." autocomplete="off">
+            <button id="sendBtn">Enviar</button>
         </div>
     </div>
 
     <script>
-        const messagesContainer = document.getElementById('chat-messages');
-        const userInput = document.getElementById('user-input');
-        const sendBtn = document.getElementById('send-btn');
-        const typingIndicator = document.getElementById('typing');
-        const errorBanner = document.getElementById('error-banner');
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const loader = document.getElementById('loader');
+        const status = document.getElementById('status');
 
-        function addMessage(text, isUser) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${isUser ? 'user-message' : 'ia-message'}`;
-            msgDiv.textContent = text;
-            messagesContainer.appendChild(msgDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        function printMsg(text, type) {
+            const div = document.createElement('div');
+            div.className = `msg ${type}-msg`;
+            div.textContent = text;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
         }
 
-        async function handleSend() {
+        async function enviar() {
             const text = userInput.value.trim();
-            if (!text) return;
+            if(!text) return;
 
-            addMessage(text, true);
+            printMsg(text, 'user');
             userInput.value = '';
             userInput.disabled = true;
             sendBtn.disabled = true;
-            typingIndicator.style.display = 'block';
-            errorBanner.style.display = 'none';
+            loader.style.display = 'block';
+            status.style.display = 'none';
 
             try {
-                // Dirección exacta de tu API en Render
                 const response = await fetch('https://melani-ia.onrender.com/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -71,27 +69,24 @@
                 });
 
                 const data = await response.json();
-                
-                if (data.response) {
-                    addMessage(data.response, false);
+                if(data.response) {
+                    printMsg(data.response, 'ia');
                 } else {
-                    throw new Error(data.error || "Respuesta vacía de la IA");
+                    throw new Error(data.details || "Error desconocido");
                 }
-            } catch (error) {
-                console.error("Error:", error);
-                errorBanner.textContent = "⚠️ Error de conexión. Revisa los logs en Render.";
-                errorBanner.style.display = 'block';
-                addMessage("Lo siento, tuve un problema técnico. Por favor, intenta de nuevo en unos segundos.", false);
+            } catch (err) {
+                status.style.display = 'block';
+                printMsg("Lo siento, tuve un problema técnico. Revisa los logs en Render.", 'ia');
             } finally {
                 userInput.disabled = false;
                 sendBtn.disabled = false;
-                typingIndicator.style.display = 'none';
+                loader.style.display = 'none';
                 userInput.focus();
             }
         }
 
-        sendBtn.addEventListener('click', handleSend);
-        userInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleSend(); });
+        sendBtn.addEventListener('click', enviar);
+        userInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') enviar(); });
     </script>
 </body>
 </html>
