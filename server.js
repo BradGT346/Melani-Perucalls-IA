@@ -7,27 +7,36 @@ app.use(express.json());
 app.use(cors()); 
 app.use(express.static('public')); 
 
-// Usamos la API KEY de tus variables de entorno en Render
+// Configuración de Seguridad y API
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 const PORT = process.env.PORT || 10000; 
 
 app.post('/api/chat', async (req, res) => {
     const { userPrompt } = req.body;
+    
+    if (!userPrompt) {
+        return res.status(400).json({ error: "No enviaste un mensaje" });
+    }
+
     try {
-        // Forzamos el uso de gemini-1.5-flash sin prefijos de versión
+        // Usamos gemini-1.5-flash que es el más rápido actualmente
         const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
         const result = await model.generateContent(userPrompt);
         const response = await result.response;
-        res.json({ response: response.text() });
+        const text = response.text();
         
+        res.json({ response: text });
     } catch (error) {
-        // Esto imprimirá el error real en los logs para nosotros
-        console.error("ERROR GOOGLE:", error.message);
-        res.status(500).json({ error: "No pude conectar con Melanie" });
+        // Log detallado para Render
+        console.error("DETALLE TÉCNICO DEL ERROR:", error.message);
+        res.status(500).json({ 
+            error: "Error interno en el servidor",
+            details: error.message 
+        });
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`Servidor activo en puerto ${PORT}`);
+    console.log(`🚀 Melanie IA funcionando en puerto ${PORT}`);
 });
