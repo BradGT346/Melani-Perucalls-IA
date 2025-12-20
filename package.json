@@ -1,6 +1,6 @@
 {
-  "name": "melani-ia",
-  "version": "1.0.0",
+  "name": "melani-ia-completa",
+  "version": "1.2.0",
   "type": "module",
   "main": "server.js",
   "scripts": {
