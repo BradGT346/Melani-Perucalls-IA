@@ -19,28 +19,24 @@ app.get('/', (req, res) => {
 // Usamos el nombre exacto de tu llave en Render
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
+// Configuramos el modelo con la personalidad de Melanie
 const model = genAI.getGenerativeModel({ 
     model: "gemini-1.5-flash",
-    systemInstruction: "Tu nombre es Melanie. Eres una asistente inteligente y amable con personalidad propia. Recuerdas el contexto de la conversación."
+    systemInstruction: "Tu nombre es Melanie. Eres una asistente virtual inteligente, amable y profesional. Tienes una personalidad propia y buscas siempre ayudar al usuario de la mejor manera."
 });
-
-let chatHistory = [];
 
 app.post('/api/chat', async (req, res) => {
     const { userPrompt } = req.body;
     try {
-        const chat = model.startChat({ history: chatHistory });
-        const result = await chat.sendMessage(userPrompt);
+        // Iniciamos el chat sin historial para esta versión simple
+        const result = await model.generateContent(userPrompt);
         const response = await result.response;
         const text = response.text();
-
-        chatHistory.push({ role: "user", parts: [{ text: userPrompt }] });
-        chatHistory.push({ role: "model", parts: [{ text: text }] });
 
         res.json({ response: text });
     } catch (error) {
         console.error("Error técnico:", error.message);
-        res.status(500).json({ error: "Error de conexión" });
+        res.status(500).json({ error: "Error de conexión con Melanie" });
     }
 });
 
