@@ -1,14 +1,14 @@
 {
-  "name": "melani-ia-fixed",
-  "version": "1.5.0",
+  "name": "melani-ia",
+  "version": "1.0.0",
   "type": "module",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.21.0",
-    "cors": "^2.8.5",
-    "express": "^4.21.1"
+    "@google/generative-ai": "latest",
+    "cors": "latest",
+    "express": "latest"
   }
 }
