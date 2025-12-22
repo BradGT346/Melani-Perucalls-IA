@@ -10,11 +10,11 @@
         .chat-container { width: 380px; height: 580px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); border-radius: 20px; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
         .header { background: #2563eb; color: white; padding: 15px; border-radius: 20px 20px 0 0; text-align: center; font-weight: bold; }
         #chat { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 10px 15px; border-radius: 15px; font-size: 14px; max-width: 80%; color: white; }
+        .msg { padding: 10px 15px; border-radius: 15px; font-size: 14px; max-width: 80%; line-height: 1.4; color: white; }
         .user { background: #2563eb; align-self: flex-end; }
         .ia { background: rgba(255, 255, 255, 0.2); align-self: flex-start; }
         .input-box { padding: 15px; display: flex; gap: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
-        input { flex: 1; padding: 10px; border: none; border-radius: 10px; outline: none; background: rgba(255,255,255,0.9); }
+        input { flex: 1; padding: 10px; border: none; border-radius: 10px; outline: none; background: rgba(255,255,255,0.9); color: #333; }
         button { background: #2563eb; color: white; border: none; padding: 10px 15px; border-radius: 10px; cursor: pointer; }
     </style>
 </head>
@@ -22,7 +22,7 @@
     <canvas id="canvas"></canvas>
     <div class="chat-container">
         <div class="header">Melanie IA 🤖</div>
-        <div id="chat"><div class="msg ia">¡Hola! Soy Melanie. ¿Cómo estás hoy?</div></div>
+        <div id="chat"><div class="msg ia">¡Hola! Soy Melanie. ¿Cómo va tu día?</div></div>
         <div class="input-box">
             <input type="text" id="userInput" placeholder="Escribe a Melanie..." autocomplete="off">
             <button onclick="enviar()">Enviar</button>
@@ -38,20 +38,20 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             particles = [];
-            for (let i = 0; i < 80; i++) {
+            for (let i = 0; i < 90; i++) {
                 particles.push({
                     x: Math.random() * canvas.width,
                     y: Math.random() * canvas.height,
-                    vx: (Math.random() - 0.5) * 1,
-                    vy: (Math.random() - 0.5) * 1
+                    vx: (Math.random() - 0.5) * 1.2,
+                    vy: (Math.random() - 0.5) * 1.2
                 });
             }
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
             particles.forEach(p => {
                 p.x += p.vx; p.y += p.vy;
                 if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
@@ -82,7 +82,7 @@
                     body: JSON.stringify({ userPrompt: text })
                 });
                 const data = await res.json();
-                chat.innerHTML += `<div class="msg ia">${data.response || "No tengo respuesta."}</div>`;
+                chat.innerHTML += `<div class="msg ia">${data.response || "No tengo respuesta por ahora."}</div>`;
             } catch {
                 chat.innerHTML += `<div class="msg ia">Error de conexión.</div>`;
             }
