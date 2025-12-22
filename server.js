@@ -16,31 +16,36 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Usamos el nombre exacto de tu llave en Render
+// Forzamos la versión estable 'v1' para evitar el error 404 de los logs
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
-// Configuramos el modelo con la personalidad de Melanie
 const model = genAI.getGenerativeModel({ 
     model: "gemini-1.5-flash",
-    systemInstruction: "Tu nombre es Melanie. Eres una asistente virtual inteligente, amable y profesional. Tienes una personalidad propia y buscas siempre ayudar al usuario de la mejor manera."
+    systemInstruction: "Tu nombre es Melanie. Eres una asistente amable y eficiente con personalidad propia. Recuerdas lo que hablamos."
 });
+
+let chatHistory = [];
 
 app.post('/api/chat', async (req, res) => {
     const { userPrompt } = req.body;
     try {
-        // Iniciamos el chat sin historial para esta versión simple
-        const result = await model.generateContent(userPrompt);
+        const chat = model.startChat({ history: chatHistory });
+        const result = await chat.sendMessage(userPrompt);
         const response = await result.response;
         const text = response.text();
 
+        // Guardamos en memoria para que no olvide
+        chatHistory.push({ role: "user", parts: [{ text: userPrompt }] });
+        chatHistory.push({ role: "model", parts: [{ text: text }] });
+
         res.json({ response: text });
     } catch (error) {
-        console.error("Error técnico:", error.message);
-        res.status(500).json({ error: "Error de conexión con Melanie" });
+        console.error("ERROR TÉCNICO:", error.message);
+        res.status(500).json({ error: "No pude conectar con Google." });
     }
 });
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-    console.log(`Melanie funcionando en puerto ${PORT}`);
+    console.log(`Melanie activa en puerto ${PORT}`);
 });
