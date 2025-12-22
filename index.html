@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Melanie IA</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0f172a; /* Fondo oscuro original */
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+        /* El fondo de puntos que se movía */
+        .bg-dots {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(#ffffff22 1px, transparent 1px);
+            background-size: 30px 30px;
+            z-index: -1;
+            animation: move 10s linear infinite;
+        }
+        @keyframes move {
+            from { background-position: 0 0; }
+            to { background-position: 100px 100px; }
+        }
+        .chat-container {
+            width: 380px;
+            height: 550px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .header { background: #2563eb; color: white; padding: 20px; border-radius: 20px 20px 0 0; text-align: center; font-weight: bold; }
+        #chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 12px; border-radius: 15px; font-size: 14px; line-height: 1.4; max-width: 80%; }
+        .user { background: #2563eb; color: white; align-self: flex-end; }
+        .ia { background: #e2e8f0; color: #1e293b; align-self: flex-start; }
+        .input-area { padding: 20px; display: flex; gap: 10px; border-top: 1px solid #eee; }
+        input { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 10px; outline: none; }
+        button { background: #2563eb; color: white; border: none; padding: 10px 15px; border-radius: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="bg-dots"></div>
+    <div class="chat-container">
+        <div class="header">Melanie IA 🤖</div>
+        <div id="chat-window">
+            <div class="msg ia">Hola, soy Melanie. ¿Cómo te encuentras hoy?</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Escribe a Melanie...">
+            <button onclick="enviar()">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        async function enviar() {
+            const input = document.getElementById('userInput');
+            const window = document.getElementById('chat-window');
+            const text = input.value.trim();
+            if(!text) return;
+
+            window.innerHTML += `<div class="msg user">${text}</div>`;
+            input.value = '';
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ userPrompt: text })
+                });
+                const data = await res.json();
+                // Aquí corregimos el "undefined" asegurando que leemos 'response'
+                window.innerHTML += `<div class="msg ia">${data.response || "No pude responder."}</div>`;
+            } catch (e) {
+                window.innerHTML += `<div class="msg ia">Error de conexión.</div>`;
+            }
+            window.scrollTop = window.scrollHeight;
+        }
+    </script>
+</body>
+</html>
